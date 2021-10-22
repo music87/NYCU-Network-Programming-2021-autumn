@@ -1,5 +1,5 @@
-#ifndef built_in_cmd_unit
-#define built_in_cmd_unit
+#ifndef builtin_commands_h
+#define builtin_commands_h
 #include<iostream>
 #include<cstring>
 #include<vector>
@@ -9,12 +9,16 @@ using namespace std;
 class Built_In_Command{
 
 public:
-    void genv(vector<cmd_unit> cmd_group);
-    void senv(vector<cmd_unit> cmd_group);
-
+    //constructor
+    Built_In_Command() {}; 
+    Built_In_Command(vector<cmd_unit> input_cmd_group): cmd_group(input_cmd_group) {};
+    void genv();
+    void senv();
+private:
+    vector<cmd_unit> cmd_group;
 };
 
-void Built_In_Command::genv(vector<cmd_unit> cmd_group){
+void Built_In_Command::genv(){
     char *re;
     if(cmd_group.front().get_argv().size() != (2+1)){
         // invalid amount of arguments for printenv, argv's last item is NULL
@@ -29,7 +33,7 @@ void Built_In_Command::genv(vector<cmd_unit> cmd_group){
 }
 
 
-void Built_In_Command::senv(vector<cmd_unit> cmd_group){
+void Built_In_Command::senv(){
     if(cmd_group.front().get_argv().size() != (3+1)){
         // invalid amount of arguments
         cerr << "ERROR: setenv requires exactly two arguments" << endl;

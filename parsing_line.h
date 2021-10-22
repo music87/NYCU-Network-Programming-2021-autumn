@@ -1,5 +1,5 @@
-#ifndef parsing_line
-#define parsing_line
+#ifndef parsing_line_h
+#define parsing_line_h
 #include<iostream>
 #include<sstream>
 #include<vector>
@@ -18,6 +18,9 @@ public:
 private:
     string c;
     vector<const char*> argv;
+    int input_stream = STDIN_FILENO;
+    int output_stream = STDOUT_FILENO;
+    int error_stream = STDERR_FILENO;
 };
 cmd_unit::cmd_unit(string input_c, vector<const char*> input_argv): c(input_c), argv(input_argv) {};
 cmd_unit::cmd_unit(string input_c){
