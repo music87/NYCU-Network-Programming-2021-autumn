@@ -15,12 +15,15 @@ public:
     // accessor
     string get_c();
     vector<const char*> get_argv();
+    int get_readfd();
+    int get_writefd();
+    int get_errorfd();
 private:
     string c;
     vector<const char*> argv;
-    int input_stream = STDIN_FILENO;
-    int output_stream = STDOUT_FILENO;
-    int error_stream = STDERR_FILENO;
+    int readfd = STDIN_FILENO;
+    int writefd = STDOUT_FILENO;
+    int errorfd = STDERR_FILENO;
 };
 cmd_unit::cmd_unit(string input_c, vector<const char*> input_argv): c(input_c), argv(input_argv) {};
 cmd_unit::cmd_unit(string input_c){
@@ -32,6 +35,15 @@ string cmd_unit::get_c(){
 }
 vector<const char*> cmd_unit::get_argv(){
     return argv;
+}
+int cmd_unit::get_readfd(){
+    return readfd;
+}
+int cmd_unit::get_writefd(){
+    return writefd;
+}
+int cmd_unit::get_errorfd(){
+    return errorfd;
 }
 
 vector<cmd_unit> parsing(string line){
@@ -52,17 +64,17 @@ vector<cmd_unit> parsing(string line){
         if(argv.size() == 0){
             // start to construct one cmd_unit
             c_ptr->assign(*word_ptr);
-        } 
+        }
         if((*word_ptr) == "|" || regex_match((*word_ptr), numbered_pipe_stdout) || regex_match((*word_ptr), numbered_pipe_stdout_stderr) || (*word_ptr) == ">"){
             // finish constructing one regular cmd_unit
-            argv.push_back(NULL);
+            argv.push_back(nullptr);
             cmd_group.push_back(cmd_unit((*c_ptr),argv));
             if ((*word_ptr) == ">"){
-		// redirect is also a cmd_unit
-		argv.clear();
+        // redirect is also a cmd_unit
+        argv.clear();
                 c_ptr = new string(*word_ptr); argv.push_back(word_ptr->c_str()); // ">"
                 word_ptr = new string; strin >> (*word_ptr); argv.push_back(word_ptr->c_str());// "file.txt"
-		cmd_group.push_back(cmd_unit((*c_ptr), argv));
+        cmd_group.push_back(cmd_unit((*c_ptr), argv));
             } else {
                 // pipe family are also a cmd_unit
                 cmd_group.push_back(cmd_unit((*word_ptr)));
@@ -70,20 +82,22 @@ vector<cmd_unit> parsing(string line){
             argv.clear(); c_ptr = new string;
         } else if((*word_ptr) != ""){
             // continue constructing one regular cmd_unit
-            // arguments should involve all terms(include the first term) of one regular cmd_unit 
+            // arguments should involve all terms(include the first term) of one regular cmd_unit
             argv.push_back(word_ptr->c_str());
         }
-	if(strin.eof()){
+    if(strin.eof()){
            // pick up the last valid cmd_unit and then break
             if ((*c_ptr) != ""){
                 argv.push_back(NULL);
                 cmd_group.push_back(cmd_unit((*c_ptr),argv));
-	   }
+       }
             break;
-	}
+    }
     }
     return cmd_group;
 
 }
 
-#endif
+
+
+#endif /* parsing_line_h */
