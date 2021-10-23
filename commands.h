@@ -4,6 +4,7 @@
 #include<cstdio>
 #include<cstring>
 #include<vector>
+#include<deque>
 #include<cstdlib>
 #include<signal.h>
 #include<sys/types.h>
@@ -12,8 +13,10 @@
 #include<errno.h>
 #include<fcntl.h>
 #include<unistd.h>
-#include"parsing_line.h"
+#include"units.h"
 #define MAX_N_ORD_PIPE 3000
+#define MAX_N_NUM_PIPE 1001
+#define MAX_N_FORK 100
 using namespace std;
 /*======== declare ========*/
 class Command{
@@ -45,7 +48,8 @@ public:
     
 private:
     vector<pid_t> cpid_table;
-    int FD_ord_pipe_table[MAX_N_ORD_PIPE][2];
+    int ord_pipes[MAX_N_ORD_PIPE][2];
+    //deque<
     void set_streams();
     //static to make class mambers shared by all objects of a class
     static void SIGCHLD_handler(int input_signal);

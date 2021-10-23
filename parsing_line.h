@@ -5,46 +5,8 @@
 #include<vector>
 #include<cstring>
 #include<regex>
+#include"units.h"
 using namespace std;
-
-class cmd_unit{
-public:
-    // constructor
-    cmd_unit(string input_c, vector<const char*> input_argv);
-    cmd_unit(string input_c);
-    // accessor
-    string get_c();
-    vector<const char*> get_argv();
-    int get_readfd();
-    int get_writefd();
-    int get_errorfd();
-private:
-    string c;
-    vector<const char*> argv;
-    int readfd = STDIN_FILENO;
-    int writefd = STDOUT_FILENO;
-    int errorfd = STDERR_FILENO;
-};
-cmd_unit::cmd_unit(string input_c, vector<const char*> input_argv): c(input_c), argv(input_argv) {};
-cmd_unit::cmd_unit(string input_c){
-    c.assign(input_c);
-    argv.push_back(NULL);
-}
-string cmd_unit::get_c(){
-    return c;
-}
-vector<const char*> cmd_unit::get_argv(){
-    return argv;
-}
-int cmd_unit::get_readfd(){
-    return readfd;
-}
-int cmd_unit::get_writefd(){
-    return writefd;
-}
-int cmd_unit::get_errorfd(){
-    return errorfd;
-}
 
 vector<cmd_unit> parsing(string line){
     istringstream strin(line);

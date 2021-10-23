@@ -27,15 +27,13 @@ int main(){
     vector<cmd_unit> cmd_group;
     Command *ptr(nullptr);
     setenv("PATH", "bin:.", true); // initialize environment variable PATH
-    // write(STDOUT_FILENO, "% ", 2); // print command line prompt (better at starting, '\n', and after handling SIHCHLD signal)
     while(true){
-        cout << "% "; // print command line prompt, but print here will lead to prompt ordering error, but it's the requirement ... fine
+        cout << "% "; // print command line prompt
         getline(cin, line, '\n'); // read one line command
         cmd_group = parsing(line); // parse command
         if(line=="exit" || cin.eof()){
             exit(0); // terminate parent process
         } else if(line.empty()){
-            // write(STDOUT_FILENO, "% ", 2); // print command line prompt (better at starting, '\n', and after handling SIHCHLD signal)
             continue; // when encounter '\n', re-input the one line command again
         } else if(line.find("setenv")!=string::npos){
             ptr = new Builtin_setenv(cmd_group);

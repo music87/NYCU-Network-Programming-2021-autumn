@@ -40,9 +40,9 @@ void Exec_command::SIGCHLD_handler(int input_signal){
     
     int status;
     // waitpid: parameter -1 means waiting for any child process, parameter WHOHANG returns immediately if no child has exited, waitpid function returns positive number which means the pid of successfully changed status' child process, the waitpid loop will continue until the last child process exits, after then waitpid will return -1(means no child process exist)
+    // the reason that parent process wait when catch SIGCHLD signal is to prevent some pipes is full and no other child process can read those pipes
     while (waitpid(-1, &status, WNOHANG) > 0);
     // perror(""); // expect to print "no child process"
-    // write(STDOUT_FILENO, "% ", 2); // print command line prompt (better at starting, '\n', and after handling SIHCHLD signal)
 }
 
 pid_t Exec_command::fork_exec(cmd_unit cmd, int n_ord_pipe){
@@ -53,8 +53,8 @@ pid_t Exec_command::fork_exec(cmd_unit cmd, int n_ord_pipe){
     if (cpid == 0){
         // set redirection stream, file_fd is got from open() function
         // input stream
-        if(cmd.get_readfd() != STDIN_FILENO){
-            if(dup2(cmd.get_readfd(), STDIN_FILENO)<0){
+        if(cmd.get_s().get_readfd() != STDIN_FILENO){
+            if(dup2(cmd.get_s().get_readfd(), STDIN_FILENO)<0){
                 // int dup2(int oldfd, int newfd) makes newfd be the copy of oldfd, closing newfd first if necessary
                 // here break the connection between STDIN_FILENO and console, and then reconnect STDIN_FILENO to the place which pointed by cmd.readfd
                 // if dup error, than dup will return -1
@@ -62,32 +62,33 @@ pid_t Exec_command::fork_exec(cmd_unit cmd, int n_ord_pipe){
                 throw exception();
             }
             // because the place which pointed by cmd.readfd has also been pointed by this process' STDIN_FILENO
-            close(cmd.get_readfd());
+            close(cmd.get_s().get_readfd());
+            // close pipe write end not yet
         }
         
         // output stream
-        if(cmd.get_writefd() != STDOUT_FILENO){
-            if(dup2(cmd.get_writefd(), STDOUT_FILENO)<0){
+        if(cmd.get_s().get_writefd() != STDOUT_FILENO){
+            if(dup2(cmd.get_s().get_writefd(), STDOUT_FILENO)<0){
                 perror("ERROR: writefd dup failed, ");
                 throw exception();
             }
-            close(cmd.get_writefd());
+            close(cmd.get_s().get_writefd());
         }
         
         // error stream
-        if(cmd.get_errorfd() != STDERR_FILENO){
-            if(dup2(cmd.get_errorfd(), STDERR_FILENO)<0){
+        if(cmd.get_s().get_errorfd() != STDERR_FILENO){
+            if(dup2(cmd.get_s().get_errorfd(), STDERR_FILENO)<0){
                 perror("ERROR: errorfd dup failed, ");
                 throw exception();
             }
-            close(cmd.get_errorfd());
+            close(cmd.get_s().get_errorfd());
         }
         // remove redundant pointer to avoid reaching maximum pipe limit, numbered pipe not yet
         // eg. remove pipe write end, or pipe read end which is useless to this child process
         // in fact, all the file descriptor which is pointed to ordinary pipe should be remove since this child process' STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO has taken over the job of pointing to appropriate pipe
         for(int i=0; i<n_ord_pipe; i++){
-            close(FD_ord_pipe_table[i][0]);
-            close(FD_ord_pipe_table[i][1]);
+            close(ord_pipes[i][0]);
+            close(ord_pipes[i][1]);
         }
         
         // redirection stream
@@ -114,7 +115,8 @@ pid_t Exec_command::fork_exec(cmd_unit cmd, int n_ord_pipe){
 }
 
 void Exec_command::execution(){
-    cmd_unit cmd(""); int n_ord_pipe = 0;
+    int n_ord_pipe = 0;
+    
     set_streams();
     signal(SIGCHLD, SIGCHLD_handler);
     pid_t cpid = fork_exec(cmd_group.at(0), n_ord_pipe);
@@ -122,8 +124,9 @@ void Exec_command::execution(){
     
     // before next one line commmand, all the child process should exit. hence we need to wait to suspend parent process and prevent it continue dealing with the next one line command.
     for(vector<int>::iterator it = cpid_table.begin(); it!=cpid_table.end(); it++){
-        if(waitpid((*it), NULL, 0)<0)
-            perror("");
+        if(waitpid((*it), NULL, 0)<0){
+            // perror("");
+        }
     }
     cpid_table.clear();
     
