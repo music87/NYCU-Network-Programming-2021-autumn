@@ -93,7 +93,7 @@ void Exec_command::set_numbered_pipes(){
     }
 }
 
-void Exec_command::implement_ordinary_pipes(){
+void Exec_command::implement_one_line_command(){
     // set every command' input stream, output stream, and error stream
     
     // compute and create ordinary pipe
@@ -179,7 +179,7 @@ void Exec_command::implement_ordinary_pipes(){
             }
             
             // exec command
-            pid_t cpid = fork_exec_process_once(cmd, n_ord_pipe);
+            pid_t cpid = implement_single_command(cmd, n_ord_pipe);
             cpid_table.push_back(cpid);
             
             // after child process has executed file redirection command , delete ">" in parent process
@@ -233,13 +233,18 @@ void Exec_command::SIGCHLD_handler(int input_signal){
     // perror(""); // expect to print "no child process"
 }
 
-pid_t Exec_command::fork_exec_process_once(vector<cmd_unit>::iterator cmd, int n_ord_pipe){
+pid_t Exec_command::implement_single_command(vector<cmd_unit>::iterator cmd, int n_ord_pipe){
     pid_t cpid;
     while((cpid = fork())<0){
         // if fork error, than fork again
     };
     if (cpid == 0){
         // set redirection stream, file_fd is got from open() function
+        // remove redundant pointer to avoid reaching maximum pipe limit, numbered
+        // eg. remove pipe write end, or pipe read end which is useless to this child process
+        // in fact, all the file descriptor which is pointed to ordinary pipe should be remove since this child process' STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO has taken over the job of pointing to appropriate pipe
+        // however, both ends of the numbered pipe may not be pointed by STDIN_FILENO, STDOUT_FILENO, or STDERR_FILENO, and this child process still connects to the end
+        
         // input stream
         if(cmd->get_s().get_readfd() != STDIN_FILENO){
             if(dup2(cmd->get_s().get_readfd(), STDIN_FILENO)<0){
@@ -273,10 +278,7 @@ pid_t Exec_command::fork_exec_process_once(vector<cmd_unit>::iterator cmd, int n
             }
             // close(cmd.get_s().get_errorfd());
         }
-        // remove redundant pointer to avoid reaching maximum pipe limit, numbered pipe not yet
-        // eg. remove pipe write end, or pipe read end which is useless to this child process
-        // in fact, all the file descriptor which is pointed to ordinary pipe should be remove since this child process' STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO has taken over the job of pointing to appropriate pipe
-        // however, both ends of the numbered pipe may not be pointed by STDIN_FILENO, STDOUT_FILENO, or STDERR_FILENO, and this child process still connects to the end
+
         for(int i=0; i<n_ord_pipe; i++){
             close(ord_pipes[i][0]);
             close(ord_pipes[i][1]);
@@ -309,9 +311,9 @@ pid_t Exec_command::fork_exec_process_once(vector<cmd_unit>::iterator cmd, int n
 void Exec_command::execute(){
     set_numbered_pipes();
     signal(SIGCHLD, SIGCHLD_handler);
-    implement_ordinary_pipes();
+    implement_one_line_command();
     
-    /*pid_t cpid = fork_exec_process_once(cmd_group.at(0), 0);
+    /*pid_t cpid = implement_single_command(cmd_group.at(0), 0);
     cpid_table.push_back(cpid);
     
     // before next one line commmand, all the child process should exit. hence we need to wait to suspend parent process and prevent it continue dealing with the next one line command.

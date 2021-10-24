@@ -41,18 +41,8 @@ int main(){
             ptr = new Builtin_getenv(cmd_group);
         } else{
             ptr = new Exec_command(cmd_group);
-            //struct stat buffer;
-            //cout << ("./bin/" + cmd_group.front().get_c()).c_str() << endl;
-            //cout << (stat(("./bin/" + cmd_group.front().get_c()).c_str(), &buffer) == 0) << endl;
-            // (./bin/)xxx
-            // unknown command
-            // ordinary pipe
-            // numbered pipe
-            // file redirection
         }
-        
         ptr -> execute();
-        //convertToASCII(line);
     }
     return 0;
 }

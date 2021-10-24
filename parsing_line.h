@@ -17,10 +17,6 @@ vector<cmd_unit> parsing(string line){
     regex numbered_pipe_stdout_stderr("![0-9]+");
     //regex redirect("[a-z]+\\.[a-z]+");
     while(true){
-        // regular pipe
-        // numbered pipe
-        // redirection
-        // unknown/regular/built-in cmd_unit, concat arguments,... execvp? execlp?
         word_ptr = new string;
         strin >> (*word_ptr);
         if(argv.size() == 0){

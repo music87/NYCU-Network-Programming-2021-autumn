@@ -56,10 +56,10 @@ private:
     // deque<stream_unit> num_pipes = deque<stream_unit> (MAX_N_NUM_PIPE);
     static deque<stream_unit> num_pipes;
     void set_numbered_pipes();
-    void implement_ordinary_pipes();
+    void implement_one_line_command();
     // static to make class mambers shared by all objects of a class
     static void SIGCHLD_handler(int input_signal);
-    pid_t fork_exec_process_once(vector<cmd_unit>::iterator cmd, int n_ord_pipe);
+    pid_t implement_single_command(vector<cmd_unit>::iterator cmd, int n_ord_pipe);
     
 };
 
