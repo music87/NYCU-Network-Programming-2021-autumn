@@ -32,11 +32,11 @@ vector<cmd_unit> parsing(string line){
             argv.push_back(nullptr);
             cmd_group.push_back(cmd_unit((*c_ptr),argv));
             if ((*word_ptr) == ">"){
-        // redirect is also a cmd_unit
-        argv.clear();
+                // redirect is also a cmd_unit
+                argv.clear();
                 c_ptr = new string(*word_ptr); argv.push_back(word_ptr->c_str()); // ">"
                 word_ptr = new string; strin >> (*word_ptr); argv.push_back(word_ptr->c_str());// "file.txt"
-        cmd_group.push_back(cmd_unit((*c_ptr), argv));
+                cmd_group.push_back(cmd_unit((*c_ptr), argv));
             } else {
                 // pipe family are also a cmd_unit
                 cmd_group.push_back(cmd_unit((*word_ptr)));

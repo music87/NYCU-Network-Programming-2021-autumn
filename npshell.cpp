@@ -51,7 +51,7 @@ int main(){
             // file redirection
         }
         
-        ptr -> execution();
+        ptr -> execute();
         //convertToASCII(line);
     }
     return 0;
