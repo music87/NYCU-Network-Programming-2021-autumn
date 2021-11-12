@@ -165,7 +165,7 @@ void Exec_command::implement_one_line_command(){
             if(cmd == cmd_group.begin() + n_ord_pipe){
                 // last command in one line command
                 if(error_on){
-                    cmd->set_s(cmd->get_s().get_readfd(), num_pipes.front().get_writefd(), num_pipes.front().get_writefd(), cmd->get_s().get_npipe_write_end());
+                    cmd->set_s(cmd->get_s().get_readfd(), num_pipes.front().get_writefd(), num_pipes.front().get_errorfd(), cmd->get_s().get_npipe_write_end());
                 } else{
                     cmd->set_s(cmd->get_s().get_readfd(), num_pipes.front().get_writefd(), cmd->get_s().get_errorfd(), cmd->get_s().get_npipe_write_end());
                 }
