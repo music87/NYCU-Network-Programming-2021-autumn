@@ -29,7 +29,7 @@ $(TARGET2):$(FOLDER2)/$(TARGET2).cpp $(HEADERS2)
 $(TARGET3):$(FOLDER3)/$(TARGET3).cpp $(HEADERS3)
 $(TARGET1) $(TARGET2) $(TARGET3):
 	$(CXX) -o $@ $< $(CFLAG)
-	cp $@ $(DEMODIR)
+	#cp $@ $(DEMODIR)
 
 
 clean:
