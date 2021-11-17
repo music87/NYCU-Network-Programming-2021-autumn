@@ -91,7 +91,7 @@ int main(int argc, char *argv[]){
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     pid_t cpid;
-    string dirpath = "../user_pipe/";
+    string dirpath = "./user_pipe/";
     
     // register SIGCHLD signal for slave process
     signal(SIGCHLD, SIGCHLD_handler);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]){
     signal(SIGUSR1, SIGUSR1_handler);
     
     // create a blank directory for user pipe
-    create_empty_directory(dirpath);
+    // create_empty_directory(dirpath);
     
     // declare, attach, and initialize a shared memory for client_alist
     initialize_client_alist();

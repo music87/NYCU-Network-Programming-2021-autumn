@@ -131,7 +131,10 @@ int client_unit::get_lowest_avaliable_ID(){
 }
 
 bool client_unit::whether_client_exist(int input_ID){
-    return avaliable_ID_table[input_ID];
+    if(input_ID>MAX_CLIENTS)
+        return false;
+    else
+        return avaliable_ID_table[input_ID];
 }
 
 vector<client_unit>::iterator client_unit::convert_ID_to_client(int input_ID){

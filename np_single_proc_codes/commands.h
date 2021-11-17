@@ -181,7 +181,7 @@ void name(vector<client_unit>::iterator client, vector<cmd_unit> cmd_group, int 
 class Exec_command{
 public:
     Exec_command(vector<client_unit>::iterator input_client, vector<cmd_unit> input_cmd_group, int input_server_sock_fd, int input_nfds, fd_set input_afds, string input_line) : client(input_client), cmd_group(input_cmd_group), server_sock_fd(input_server_sock_fd), nfds(input_nfds), afds(input_afds), whole_one_line_command(input_line) {
-        devnull = open("/dev/null", O_WRONLY);
+        devnull = open("/dev/null", O_RDWR);
     };
     ~Exec_command(){
         close(devnull);
@@ -291,6 +291,9 @@ bool Exec_command::set_user_pipes(){
     
     if(regex_match(second_cmd, user_pipe_receive) || regex_match(last_cmd, user_pipe_receive)){
         // <#
+        // delete <# command from cmd_group
+        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_receive)? (cmd_group.begin()+1):(cmd_group.end()-1);
+        cmd_group.erase(it);
         int target_ID = (regex_match(second_cmd, user_pipe_receive))? stoi(second_cmd.substr(1)) : stoi(last_cmd.substr(1));
         if(!client_unit::whether_client_exist(target_ID)){
             // target user doesn't exist
@@ -305,9 +308,8 @@ bool Exec_command::set_user_pipes(){
             //                           ------------
             // output *** Error: user #tar does not exist yet. *** on client_cur's stdout(console)
             cout << "*** Error: user #" << target_ID << " does not exist yet. ***" << endl;
-            //client->one_line_pipes.front().set_readfd(devnull);
-            //throw std::runtime_error("*** Error: user #" + to_string(target_ID) + " does not exist yet. ***");
-            return false;
+            client->one_line_pipes.front().set_readfd(devnull);
+            return true;
         } else{
             // target user exist
             vector<client_unit>::iterator client_target = client_unit::convert_ID_to_client(target_ID);
@@ -353,19 +355,18 @@ bool Exec_command::set_user_pipes(){
                 // this means that user pipe doesn't exist
                 // output *** Error: the pipe #tar->#cur does not exist yet. *** on client_cur's stdout(console)
                 cout << "*** Error: the pipe #" << client_target->get_ID() << "->#" << client->get_ID() << " does not exist yet. ***" << endl;
-                //client->one_line_pipes.front().set_readfd(devnull);
-                //throw runtime_error("*** Error: the pipe #" + to_string(client_target->get_ID()) + "->#" + to_string(client->get_ID()) + " does not exist yet. ***");
-                return false;
+                client->one_line_pipes.front().set_readfd(devnull);
+                return true;
             }
         }
-        // delete <# command from cmd_group
-        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_receive)? (cmd_group.begin()+1):(cmd_group.end()-1);
-        cmd_group.erase(it);
     }
     
     
     if(regex_match(second_cmd, user_pipe_send) || regex_match(last_cmd, user_pipe_send)){
         // >#
+        // delete ># command from cmd_group
+        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_send)? (cmd_group.begin()+1):(cmd_group.end()-1);
+        cmd_group.erase(it);
         int target_ID = (regex_match(second_cmd, user_pipe_send))? stoi(second_cmd.substr(1)) : stoi(last_cmd.substr(1));
         if(!client_unit::whether_client_exist(target_ID)){
             // target user doesn't exist
@@ -380,9 +381,8 @@ bool Exec_command::set_user_pipes(){
             //                 ------------
             // output *** Error: user #<user_id> does not exist yet. *** on client_cur's stdout(console)
             cout << "*** Error: user #" << target_ID << " does not exist yet. ***" << endl;
-            //client->one_line_pipes.front().set_writefd(devnull);
-            //throw runtime_error("*** Error: user #" + to_string(target_ID) + " does not exist yet. ***");
-            return false;
+            client->one_line_pipes.front().set_writefd(devnull);
+            return true;
         } else{
             // target user exist
             vector<client_unit>::iterator client_target = client_unit::convert_ID_to_client(target_ID);
@@ -432,14 +432,10 @@ bool Exec_command::set_user_pipes(){
                 // this means that client_tar hasn't receive the command from client_cur, hence client_cur transfer data to client_tar fails this time
                 // output *** Error: the pipe #cur->#tar already exists. *** on client_cur's stdout(console)
                 cout << "*** Error: the pipe #" << client->get_ID() << "->#" << client_target->get_ID() << " already exists. ***" <<endl;
-                //client->one_line_pipes.front().set_writefd(devnull);
-                //throw runtime_error("*** Error: the pipe #" + to_string(client->get_ID()) + "->#" + to_string(client_target->get_ID()) + " already exists. ***");
-                return false;
+                client->one_line_pipes.front().set_writefd(devnull);
+                return true;
             }
         }
-        // delete ># command from cmd_group
-        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_send)? (cmd_group.begin()+1):(cmd_group.end()-1);
-        cmd_group.erase(it);
     }
     return true;
 }

@@ -199,11 +199,17 @@ void name(vector<cmd_unit> cmd_group){
 
 class Exec_command{
 public:
-    Exec_command(vector<cmd_unit> input_cmd_group, string input_line, string input_dirpath) : cmd_group(input_cmd_group), whole_one_line_command(input_line), dirpath(input_dirpath) {};
-    ~Exec_command(){}
+    Exec_command(vector<cmd_unit> input_cmd_group, string input_line, string input_dirpath) : cmd_group(input_cmd_group), whole_one_line_command(input_line), dirpath(input_dirpath) {
+        devnull = open("/dev/null", O_RDWR);
+    };
+    
+    ~Exec_command(){
+        close(devnull);
+    }
     void execute();
     
 private:
+    int devnull;
     vector<cmd_unit> cmd_group;
     string whole_one_line_command;
     string dirpath;
@@ -301,6 +307,9 @@ bool Exec_command::set_user_pipes(){
         second_cmd = cmd_group.at(1).get_c();
     if(regex_match(second_cmd, user_pipe_receive) || regex_match(last_cmd, user_pipe_receive)){
         // <#
+        // delete <# command from cmd_group
+        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_receive)? (cmd_group.begin()+1):(cmd_group.end()-1);
+        cmd_group.erase(it);
         int target_ID = (regex_match(second_cmd, user_pipe_receive))? stoi(second_cmd.substr(1)) : stoi(last_cmd.substr(1));
         if(!whether_client_exist(target_ID)){
             // target user doesn't exist
@@ -315,9 +324,8 @@ bool Exec_command::set_user_pipes(){
             //                           ------------
             // output *** Error: user #tar does not exist yet. *** on client_cur's stdout(console)
             cout << "*** Error: user #" << target_ID << " does not exist yet. ***" << endl;
-            //client->one_line_pipes->front().set_readfd(devnull);
-            //throw std::runtime_error("*** Error: user #" + to_string(target_ID) + " does not exist yet. ***");
-            return false;
+            client->one_line_pipes->front().set_readfd(devnull);
+            return true;
         } else{
             // target user exist
             client_unit* client_target = convert_ID_to_client(target_ID);
@@ -386,19 +394,18 @@ bool Exec_command::set_user_pipes(){
                 // this means that user pipe doesn't exist
                 // output *** Error: the pipe #tar->#cur does not exist yet. *** on client_cur's stdout(console)
                 cout << "*** Error: the pipe #" << client_target->ID << "->#" << client->ID << " does not exist yet. ***" << endl;
-                //client->one_line_pipes->front().set_readfd(devnull);
-                //throw runtime_error("*** Error: the pipe #" + to_string(client_target->get_ID()) + "->#" + to_string(client->get_ID()) + " does not exist yet. ***");
-                return false;
+                client->one_line_pipes->front().set_readfd(devnull);
+                return true;
             }
         }
-        // delete <# command from cmd_group
-        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_receive)? (cmd_group.begin()+1):(cmd_group.end()-1);
-        cmd_group.erase(it);
     }
     
     
     if(regex_match(second_cmd, user_pipe_send) || regex_match(last_cmd, user_pipe_send)){
         // >#
+        // delete ># command from cmd_group
+        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_send)? (cmd_group.begin()+1):(cmd_group.end()-1);
+        cmd_group.erase(it);
         int target_ID = (regex_match(second_cmd, user_pipe_send))? stoi(second_cmd.substr(1)) : stoi(last_cmd.substr(1));
         if(!whether_client_exist(target_ID)){
             // target user doesn't exist
@@ -413,9 +420,8 @@ bool Exec_command::set_user_pipes(){
             //                 ------------
             // output *** Error: user #<user_id> does not exist yet. *** on client_cur's stdout(console)
             cout << "*** Error: user #" << target_ID << " does not exist yet. ***" << endl;
-            //client->one_line_pipes->front().set_writefd(devnull);
-            //throw runtime_error("*** Error: user #" + to_string(target_ID) + " does not exist yet. ***");
-            return false;
+            client->one_line_pipes->front().set_writefd(devnull);
+            return true;
         } else{
             // target user exist
             client_unit* client_target = convert_ID_to_client(target_ID);
@@ -453,9 +459,6 @@ bool Exec_command::set_user_pipes(){
                     }
                     client->one_line_pipes->front().set_writefd(user_pipe_write_end_fd);
                     
-                    // delete ># command from cmd_group, don't forget!!!
-                    vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_send)? (cmd_group.begin()+1):(cmd_group.end()-1);
-                    cmd_group.erase(it);
                     implement_one_line_command();
                     exit(0);
                 } else{
@@ -489,14 +492,10 @@ bool Exec_command::set_user_pipes(){
                 // this means that client_tar hasn't receive the command from client_cur, hence client_cur transfer data to client_tar fails this time
                 // output *** Error: the pipe #cur->#tar already exists. *** on client_cur's stdout(console)
                 cout << "*** Error: the pipe #" << client->ID << "->#" << client_target->ID << " already exists. ***" <<endl;
-                //client->one_line_pipes->front().set_writefd(devnull);
-                //throw runtime_error("*** Error: the pipe #" + to_string(client->get_ID()) + "->#" + to_string(client_target->get_ID()) + " already exists. ***");
-                return false;
+                client->one_line_pipes->front().set_writefd(devnull);
+                return true;
             }
         }
-        // delete ># command from cmd_group
-        vector<cmd_unit>::iterator it = regex_match(second_cmd, user_pipe_send)? (cmd_group.begin()+1):(cmd_group.end()-1);
-        cmd_group.erase(it);
     }
     return true;
 }
@@ -735,7 +734,6 @@ pid_t Exec_command::implement_single_command(vector<cmd_unit>::iterator cmd, int
 }
 
 void Exec_command::execute(){
-    signal(SIGCHLD, SIG_IGN);
     bool success = set_user_pipes();
     if(!success)
         return;

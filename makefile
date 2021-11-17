@@ -4,7 +4,7 @@ FOLDER2 = np_single_proc_codes
 FOLDER3 = np_multi_proc_codes
 COMMON = np_utils
 
-HEADERS1 = $(FOLDER1)/commands.h $(FOLDER1)/npshell.h $(FOLDER1)/parsing_line.h $(COMMON)/units.h
+HEADERS1 = $(FOLDER1)/commands.h $(FOLDER1)/npshell.h $(FOLDER1)/parsing_line.h $(COMMON)/units.h $(COMMON)/passiveTCP.h
 HEADERS2 = $(FOLDER2)/commands.h $(FOLDER2)/npshell.h $(FOLDER2)/client_units.h $(COMMON)/parsing_line_proc.h $(COMMON)/passiveTCP.h $(COMMON)/units.h
 HEADERS3 = $(FOLDER3)/global_variables.h $(FOLDER3)/client_unit.h $(FOLDER3)/commands.h $(FOLDER3)/npshell.h $(COMMON)/parsing_line_proc.h $(COMMON)/passiveTCP.h $(COMMON)/units.h
 
