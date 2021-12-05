@@ -152,6 +152,7 @@ void server::do_accept(){
     dacceptor.async_accept(
                            [this](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
                                if (!ec) {
+                                   // refer to https://www.boost.org/doc/libs/1_47_0/doc/html/boost_asio/overview/posix/fork.html
                                    io_context.notify_fork(boost::asio::io_service::fork_prepare);
                                    pid_t cpid;
                                    if((cpid=fork())<0){
@@ -199,5 +200,4 @@ int main(int argc, const char * argv[]) {
     
     return 0;
 }
-
 

@@ -9,7 +9,7 @@ TARGET2 = console
 HEADER = global_variables.h
 
 all: $(TARGET1) $(TARGET2).cgi
-	cp $(TARGET1).cpp $(TARGET2).cpp $(HEADER) ../np_project3_demo_sample/src/309551177/
+#	cp $(TARGET1).cpp $(TARGET2).cpp $(HEADER) ../np_project3_demo_sample/src/309551177/
 
 run:
 	./$(TARGET1) 7086
