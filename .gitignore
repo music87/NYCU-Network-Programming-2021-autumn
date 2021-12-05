@@ -48,3 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+# CGI files and executable files
+*.cgi
+http_server
