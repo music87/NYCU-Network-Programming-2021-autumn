@@ -192,6 +192,7 @@ void shell::display(std::string message, std::string mode){
     boost::replace_all(message, "\n", "&NewLine;");
     boost::replace_all(message, "\r", "");
     boost::replace_all(message, "\"", "&quot;");
+    boost::replace_all(message, "\\", "&bsol;");
     boost::replace_all(message, "/", "&sol;");
     boost::replace_all(message, "<", "&lt;");
     boost::replace_all(message, ">", "&gt;");
@@ -206,7 +207,7 @@ void shell::display(std::string message, std::string mode){
 
 void shell::do_read_from_tcp_socket(){
     auto self(shared_from_this());
-    tcp_socket.async_read_some(boost::asio::buffer(dbuffer), [this, self](boost::system::error_code ec, std::size_t length) {
+    tcp_socket.async_read_some(boost::asio::buffer(dbuffer, MAX_BUFFER_LENGTH), [this, self](boost::system::error_code ec, std::size_t length) {
         if(!ec){
             // output
             std::string message(dbuffer);
@@ -219,6 +220,8 @@ void shell::do_read_from_tcp_socket(){
             if(message.find("% ") != std::string::npos){
                 do_write_to_tcp_scoket();
             }
+            
+            // self-loop
             do_read_from_tcp_socket();
         }
     });
@@ -239,7 +242,6 @@ void shell::do_write_to_tcp_scoket(){
 
 int main(){
     std::string env_QUERY_STRING = getenv("QUERY_STRING");
-    //std::string env_QUERY_STRING = "h0=nplinux1.cs.nctu.edu.tw&p0=1234&f0=t1.txt&h1=nplinux2.cs.nctu.edu.tw&p1=5678&f1=t2.txt&h2=&p2=&f2=&h3=&p3=&f3=&h4=&p4=&f4=";
     
     std::vector<shell_unit> shell_info_list = parse_QUERY_STRING(env_QUERY_STRING);
     set_html_format(shell_info_list);
