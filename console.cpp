@@ -30,7 +30,7 @@ void set_html_format(std::vector<shell_unit> shell_info_list){
     std::string head =
     "  <head>\n"
     "    <meta charset=\"UTF-8\" />\n"
-    "    <title>NP Project 3 Sample Console</title>\n"
+    "    <title>NP Project 3 Console</title>\n"
     "    <link\n"
     "      rel=\"stylesheet\"\n"
     "      href=\"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css\"\n"
