@@ -17,13 +17,17 @@
 #include "global_variables.h"
 #include "socks4_helper.h"
 
-// connect
-// bind
-// fireware
-// http://nplinux8.cs.nctu.edu.tw/~cwhsu309551177/npdemo4/panel_socks.cgi
-// http://127.0.0.1:7086/Users/xujiawei/Downloads/panel_socks.cgi
-// curl --proxy socks4://127.0.0.1:7414 https://www.youtube.com/
-
+/*
+ Test:
+    Connect mode:
+         curl --proxy socks4://127.0.0.1:7414 https://www.youtube.com
+         curl --proxy socks4://127.0.0.1:7414 ftp://anonymous@127.0.0.1:1225/1.txt -O
+         curl --proxy socks4://127.0.0.1:7414 ftp://anonymous@127.0.0.1:1225/-X "MKD newDir”
+         curl --proxy socks4://127.0.0.1:7414 --ftp-port 0 ftp://anonymous@127.0.0.1:1225/1.txt
+         console client (hw4.cgi)
+    Bind mode:
+         FlashFXP client (select ftp active mode with socks4 proxy)
+*/
 void debug(std::string who, const unsigned char *buffer, size_t length){
     std::cout << who + ": ";
     for(size_t i=0; i<length; i++)
@@ -334,7 +338,7 @@ int main(int argc, const char * argv[]) {
             break;
         }
         catch (std::exception &e){
-            //std::cout << "io_context's failed: " << e.what() << std::endl;
+            // std::cout << "io_context's failed: " << e.what() << std::endl;
         }
     }
     

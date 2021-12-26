@@ -11,6 +11,11 @@
 #include <boost/algorithm/string.hpp>
 #include "global_variables.h"
 #include "socks4_helper.h"
+/* Test:
+ http://nplinux5.cs.nctu.edu.tw/~cwhsu309551177/panel_socks.cgi
+ http://127.0.0.1:7086/Users/xujiawei/Downloads/panel_socks.cgi
+ */
+
 
 class shell_unit{
 public:
@@ -311,12 +316,11 @@ int main(){
             break;
         }
         catch (std::exception &e){
-            //std::cout << "io_context's failed: " << e.what() << std::endl;
+            // std::cout << "io_context's failed: " << e.what() << std::endl;
         }
     }
     
     return 0;
     
 }
-
 
