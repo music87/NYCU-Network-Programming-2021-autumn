@@ -9,7 +9,23 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string.hpp>
 #include "global_variables.h"
+/*
+ console:
+ parse_QUERY_STRING_and_print_html_header()
+ for each shell(){
+ do_resolve()
+ do_connect()
+ do_read(): display(), do_write(), do_read()
+ }
+ */
 
+/*
+ [INFO] Test console.cgi
+       http://nplinux5.cs.nctu.edu.tw/~cwhsu309551177/npdemo3/panel.cgi
+
+ [INFO] Test http_server and console.cgi (combined)
+       http://nplinux5.cs.nctu.edu.tw:38860/panel.cgi
+ */
 class shell_unit{
 public:
     shell_unit(std::string input_session, std::string input_host, std::string input_port, std::string input_test_file) : session(input_session), host(input_host), port(input_port), test_file(input_test_file){};

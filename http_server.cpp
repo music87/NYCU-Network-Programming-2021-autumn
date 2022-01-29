@@ -10,7 +10,24 @@
 #include <signal.h>
 #include <cstdlib>
 #include "global_variables.h"
+/*
+ http_server:
+ do_accept(){
+    fork(): do_read(), parse_request(), do_response(): setenv, dup, std::cout << "HTTP/1.1 200 OK\r\n"; , exec
+    do_wait()
+    do_accept()
+ }
+ */
 
+/*
+ [INFO] Test http_server
+       http://nplinux5.cs.nctu.edu.tw:38860/printenv.cgi?course_name=NP
+       http://nplinux5.cs.nctu.edu.tw:38860/hello.cgi
+       http://nplinux5.cs.nctu.edu.tw:38860/welcome.cgi
+
+ [INFO] Test http_server and console.cgi (combined)
+       http://nplinux5.cs.nctu.edu.tw:38860/panel.cgi
+ */
 
 struct environment_variables{
     std::string REQUEST_METHOD;
