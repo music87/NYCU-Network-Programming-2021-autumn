@@ -36,9 +36,9 @@ void Exec_command::set_numbered_pipes(){
     regex numbered_pipe_stdout("\\|[0-9]+");
     regex numbered_pipe_stdout_stderr("![0-9]+");
     string last_cmd = cmd_group.back().get_c();
+    num_pipes.push_back(stream_unit()); // required! or the many many numbered pipes will broke!!!
     if(regex_match(last_cmd, numbered_pipe_stdout) || (error_on = regex_match(last_cmd, numbered_pipe_stdout_stderr))){
         has_numbered_pipe = true;
-        num_pipes.push_back(stream_unit()); // required! or the many many numbered pipes will broke!!!
         int target_one_line_command = stoi(last_cmd.substr(1));
         if(num_pipes.at(target_one_line_command).get_readfd() == STDIN_FILENO){
             // target one line command's first commands's stdin comes from console
